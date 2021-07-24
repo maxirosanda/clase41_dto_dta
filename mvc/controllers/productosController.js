@@ -2,6 +2,7 @@ import Producto from '../models/productos.js'
 import Mensaje from '../models/mensajes.js'
 import mongoose from 'mongoose'
 import logger from 'pino'
+importDAO from "./PersonaFileDAO.js"
 
 mongoose.set('useCreateIndex', true)
 const loggerError = logger('./logs/error.log')

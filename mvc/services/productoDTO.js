@@ -1,0 +1,1 @@
+export const productoDTO = (nombre,descripcion,precio,stock,url) => ({...producto});
