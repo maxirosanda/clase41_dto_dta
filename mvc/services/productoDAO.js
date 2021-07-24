@@ -1,25 +1,15 @@
 import { productoDTO } from './productoDTO.js';
 import fs from 'fs';
 import Producto from '../models/productos.js'
+import Mensaje from '../models/mensajes.js'
 
-class ProductoMemDAO {
+class ProductoDAO {
 
     constructor() {
         this.archivo = null;
     }
-/*
-    init  = async (fileName) => {
-        this.archivo = fileName;
-        try {
-            await fs.readFileSync(this.archivo, 'utf-8');
-        } catch (e) {
-            await fs.writeFileSync(this.archivo, JSON.stringify([]));
-        }
-    }
-*/
-    
+ 
     getAll = async () => {
-        if(!this.archivo) return "Debe llamar al metodo init primero";
         try {
             const producto = await Producto.find({}).lean()
             return producto
@@ -28,62 +18,63 @@ class ProductoMemDAO {
     };
     
     getByid = async (id) => {
-        if(!this.archivo) return "Debe llamar al metodo init primero";
-
-        let personas = await this.getAll();
-        let indice = this.getIndex(id, personas);
-        return personas[indice];
+        try {
+            const producto = await Producto.find({ _id: id }).lean()
+            const mensaje = await Mensaje.find({ articulo: id }).lean()
+            return([producto,mensaje])
+          } catch (e) { loggerError.error(e) }
     };
     
-    insert = async (persona) => {
-        if(!this.archivo) return "Debe llamar al metodo init primero";
-
+    insert = async (body) => {
         try {
-            let personas = await this.getAll();
-            let nuevaPersona = personaDTO(this.getNextId(personas), this.getFyH(), persona);
-            personas.push(nuevaPersona);
-            await fs.writeFileSync(this.archivo, JSON.stringify(personas));
-            return nuevaPersona;
-        } catch (e) {
-            console.log("error: ", e);
-        }   
+            let nuevoproducto = productoDTO(body);
+            const producto = new Producto(nuevoproducto)
+            await producto.save()
+          } catch (e) { console.log(e) }
     }
 
 
-    updateByid = async (id, persona) => {
-        if(!this.archivo) return "Debe llamar al metodo init primero";
+    updateByid = async (id, producto) => {
 
+        const { nombre, descripcion, precio, url, stock } = producto
+        const nuevoproducto = {}
+        if (nombre) nuevoproducto.nombre = nombre
+        if (descripcion) nuevoproducto.descripcion = descripcion
+        if (precio) nuevoproducto.precio = precio
+        if (stock) nuevoproducto.stock = stock
+        if (url) nuevoproducto.url = url
+        nuevoproducto.actualizar = this.makeid(20)
+        console.log(nombre)
+        console.log(nuevoproducto.actualizar)
         try {
-            let personas = await this.getAll();
-            let personaUpdate = personaDTO(id, this.getFyH(), persona);
-            personas.splice(this.getIndex(id, personas), 1, personaUpdate);
-            await fs.writeFileSync(this.archivo, JSON.stringify(personas));
-            return personaUpdate;    
-        } catch (e) {
-            console.log("error: ", e)
-        }
+          await Producto.findOneAndUpdate(
+            { _id: id },
+            { $set: nuevoproducto },
+            { new: true }
+          )
+
+        } catch (e) { loggerError.error(e) }
         
     };
     
     deleteByid = async (id) => { 
-        if(!this.archivo) return "Debe llamar al metodo init primero";
-
         try {
-            let personas = await this.getAll();
-            personas.splice(this.getIndex(id, personas), 1);
-            await fs.writeFileSync(this.archivo, JSON.stringify(personas));
-            return "Borrado"; 
-        } catch (e) {
-            console.log("error: ", e)
-        }
+            await Producto.deleteOne({ _id: id })
+          } catch (e) { loggerError.error(e) }
+
     };
     
-    getNextId = (personas) => ( personas.length > 0 ? personas.length + 1 : 1);
-    
-    getIndex = (id, personas) => (personas.findIndex( person => person.id === id));
-    
-    getFyH = () => (new Date().toLocaleString()); 
+   
+ makeid = (length) => {
+    var result = ''
+    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    var charactersLength = characters.length
+    for (var i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength))
+    }
+    return result
+  }
 }
 
 
-export default PersonaMemDAO;
+export default ProductoDAO;
