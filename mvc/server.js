@@ -15,6 +15,9 @@ import { ecommerceRoutes } from './routes/ecommerceRoutes.js'
 import { conectarDB } from './config/db.js'
 import { ConectarPassport } from './passport/passport.js'
 import os from 'os'
+import  config from './config/config.js'
+
+
 
 const numCpu = os.cpus().length
 const app = express()
@@ -59,7 +62,7 @@ ecommerceRoutes(app)
 
 app.disable('x-powered-by')
 
-if (cluster.isMaster && process.argv[2] === 'CLUSTER') {
+if (cluster.isMaster && config.MODO === 'CLUSTER') {
   loggerInfo.info(numCpu)
   loggerInfo.info(`process ID: ${process.pid} `)
   for (let i = 0; i < numCpu; i++) {
@@ -71,7 +74,7 @@ if (cluster.isMaster && process.argv[2] === 'CLUSTER') {
     cluster.fork()
   })
 } else {
-  const port = process.env.PORT || '8080'
+  const port = config.PORT|| '5000'
   app.set('port', port)
   server.listen(port).on('error', error => {
     loggerError.error(`error en el servidor:${error}`)

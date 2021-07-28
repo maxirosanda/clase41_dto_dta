@@ -1,15 +1,17 @@
+import { config } from 'dotenv'
 import nodemailer from 'nodemailer'
+import  config from '../config/config.js'
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'maxirosandacoder@gmail.com',
-    pass: 'coderhouse'
+    user: config.MAIL,
+    pass: config.PASSWORDMAIL
   }
 })
 const mailOptions = (info) => ({
   from: info.from,
-  to: info.to || 'maxirosandacoder@gmail.com',
+  to: info.to || config.PASSWORDMAIL,
   subject: info.subject,
   html: info.html
 })

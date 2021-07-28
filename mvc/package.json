@@ -5,8 +5,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js FORK mongo",
-    "sincluster": "nodemon server.js",
+    "start": "RUN=prod node server.js",
+    "dev":"nodemon server.js",
     "artillery": "artillery quick --count 500 -n 10 http://localhost:8080/ > resultados_artillery.txt",
     "test": "mocha --recursive"
   },

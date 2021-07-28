@@ -5,9 +5,8 @@ import passport from 'passport'
 import Local from 'passport-local'
 import Facebook from 'passport-facebook'
 import bcrypt from 'bcrypt'
+import  config from '../config/config.js'
 
-const clientID = '481454786493399'
-const clientSecret = 'e32d943fab84fe535f54112ee9169fa4'
 
 mongoose.set('useCreateIndex', true)
 const LocalStrategy = Local.Strategy
@@ -66,8 +65,8 @@ export const ConectarPassport = () => {
   )
 
   passport.use('facebook', new FacebookStrategy({
-    clientID: clientID,
-    clientSecret: clientSecret,
+    clientID: config.CLIENTID,
+    clientSecret: config.CLIENTSECRET,
     callbackURL: '/facebook/callback'
   },
   (accessToken, refreshToken, profile, done) => {
